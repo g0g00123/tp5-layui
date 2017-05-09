@@ -1,0 +1,33 @@
+<div class="layui-side layui-bg-black">
+<div class="layui-side-scroll">
+<ul class="layui-nav layui-nav-tree site-demo-nav">
+  <li class="layui-nav-item layui-nav-itemed">
+    <a href="javascript:;">菜单列表</a>
+    <dl class="layui-nav-child">
+      <dd><a href="/admin/welcome">首页</a></dd>
+      <dd><a href="/admin/get_list">管理员列表</a></dd>
+      {if condition="strpos($Think.session.sign,'1') nheq false"}<dd><a href="/admin/add">新增管理员</a></dd>{/if}
+      <dd><a href="/admin/user/get_list">用户列表</a></dd>
+      <dd><a href="/admin/user/add">新增用户</a></dd>
+      {if condition="strpos($Think.session.sign,'5') nheq false"}<dd><a href="/admin/post/add">发表文章</a></dd>{/if}
+    </dl>
+  </li>
+  <li class="layui-nav-item layui-nav-itemed">
+    <a href="javascript:;">统计</a>
+    <dl class="layui-nav-child">
+      <dd><a href="/admin/user/get_count">柱状图</a></dd>
+      <dd><a href="/admin/user/get_map">地图统计</a></dd>
+    </dl>
+  </li>
+  <li class="layui-nav-item layui-nav-itemed">
+    <a href="javascript:;">权限管理</a>
+    <dl class="layui-nav-child">
+      <dd><a href="/role">角色列表</a></dd>
+      <dd><a href="/permission">权限设置</a></dd>
+    </dl>
+  </li>
+</ul>
+</div>
+</div>
+<div class="layui-body site-demo">
+<div class="layui-main">

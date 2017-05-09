@@ -1,0 +1,135 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend>新增用户</legend>
+</fieldset>
+
+<form class="layui-form bounceInLeft animated" enctype="multipart/form-data" method="post" id="form">
+	<div class="layui-form-item">
+    <label class="layui-form-label">上传头像</label>
+    <div class="layui-input-block">
+      <div class="site-demo-upload">
+		  <img id="LAY_demo_upload" src="">
+		  <div class="site-demo-upbar">
+		    <input type="file"  name="avatar" class="layui-upload-file" id="fileupload">
+		  </div>
+		</div>
+  </div>
+  </div>
+  <input type="text" name="avatar" lay-verify="required|avatar"  value="" id="avatar" style="display: none">
+  <div class="layui-form-item">
+    <label class="layui-form-label">昵称</label>
+    <div class="layui-input-inline">
+      <input type="text" name="nickname"  lay-verify="required|username|nickname" placeholder="请输入昵称" autocomplete="off" class="layui-input">
+    </div>
+    <div class="layui-form-mid layui-word-aux">昵称由字母、数字或者下划线组成,不能超过10个字符</div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">用户名</label>
+    <div class="layui-input-inline">
+      <input type="text" name="username"  lay-verify="required|username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+    </div>
+    <div class="layui-form-mid layui-word-aux">用户名由字母、数字或者下划线组成,不能超过15个字符</div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">密码</label>
+    <div class="layui-input-inline">
+      <input type="password" name="password"  lay-verify="required|password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+    </div>
+    <div class="layui-form-mid layui-word-aux">密码为6-12位,不能有包含特殊字符</div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">电话</label>
+    <div class="layui-input-block">
+       <input type="text"  name="mobile" lay-verify="required|phone" placeholder="请输入手机号码" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">性别</label>
+    <div class="layui-input-block">
+      <input type="radio" name="sex" value="1" title="男" checked>
+      <input type="radio" name="sex" value="2" title="女" >
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">座右铭</label>
+    <div class="layui-input-block">
+      <textarea name="motto" placeholder="请输入座右铭" class="layui-textarea"></textarea>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-input-block">
+      <button class="layui-btn" type="button" lay-submit lay-filter="formSubmit">提交</button>
+      <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+    </div>
+  </div>
+</form>
+
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+ <script>
+layui.use(['upload','form','layer'], function(){
+  layui.upload({
+    url: "/admin/upload"
+    ,elem: '#fileupload' //指定原始元素，默认直接查找class="layui-upload-file"
+    ,success: function(res){
+      LAY_demo_upload.src = "__UPLOADS__/"+res.fileName;
+      avatar.value = res.fileName;
+    }
+  });
+  var form = layui.form();
+  var layer = layui.layer;
+  var $ = layui.jquery;
+  form.on('submit(formSubmit)', function(data){
+      $.post("{:url('/admin/user/add_action')}",$('#form').serialize(),function(data){
+          if(data.success){
+            layer.alert(data.msg,{
+              icon:1
+            },function(index){  
+            	layer.close(index);
+                window.location.href = '/admin/user/get_list';          
+            })
+          }else{
+            layer.alert(data.msg,{
+              icon:2
+            });
+          }
+      })
+    	
+  });
+ 
+  form.verify({
+      username: function(value){
+	    if(!new RegExp("^[a-zA-Z0-9_\u4e00-\u9fa5\\s·]+$").test(value)){
+	      return '用户名不能有特殊字符';
+	    }
+	    if(/(^\_)|(\__)|(\_+$)/.test(value)){
+	      return '用户名首尾不能出现下划线\'_\'';
+	    }
+	    if(/^\d+\d+\d$/.test(value)){
+	      return '用户名不能全为数字';
+	    }
+	    if(value.length >= 15){
+	  		return '用户名不能超过十五个字符';
+	  	}
+	  },
+	  nickname:function(value){
+	  		if(value.length >= 10){
+	  			return '昵称不能超过十个字符';
+	  		}
+	  },
+	  
+	  password: [
+	    /^[\S]{6,12}$/
+	    ,'密码必须6到12位，且不能出现空格'
+	  ],
+	 avatar:function(value){
+	 	if(value == ""){
+	 		return '请上传文件';
+	 	}
+	 	// if(!/(.jpg)|(.png)|(.jpeg)/.test(value.substring(value.lastIndexOf('.')))){
+	 	// 	return '请传入jpg、png、jpeg格式的图片';
+	 	// }
+	 }
+	}); 
+	  
+  
+});
+</script>

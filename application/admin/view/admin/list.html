@@ -1,0 +1,142 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend>管理员列表</legend>
+</fieldset>
+
+<div class="layui-btn-group fadeInDown animated">
+    {if condition="strpos($Think.session.sign,'1') nheq false"}<a href="{:url('/admin/add')}"><button class="layui-btn">新增</button></a>{/if}
+    {if condition="strpos($Think.session.sign,'2') nheq false"}<a href="javascript:;"><button id="delAll" class="layui-btn  layui-btn-disabled">删除</button></a>{/if}
+ </div>
+
+<div class="layui-form fadeInUp animated">
+<table class="layui-table" lay-even lay-skin="nob">
+   <colgroup>
+      <col width="100">
+      <col width="150">
+      <col width="200">
+      <col width="200">
+      <col width="200">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th><input type="checkbox" name="" lay-skin="primary" lay-filter="allChoose"></th>
+        <th>用户名</th>
+        <th>头像</th>
+        <th>电话号码</th>
+        <th>上次登录时间</th>
+        <th>登录ip</th>
+        <th>操作</th>
+      </tr> 
+    </thead>
+    <tbody>
+	{volist name='list' id='admin'}
+      <tr>
+        <td><input value="{$admin.id}" type="checkbox" lay-filter="checkOn" lay- lay-skin="primary"></td>
+        <td>{$admin.username}</td>
+        <td>{$admin.avatar}</td>
+        <td>{$admin.mobile}</td>
+        <td>{$admin.last_login_time}</td>
+        <td>{$admin.login_ip}</td>
+        <td>
+	        <div class="layui-btn-group">
+			    {if condition="strpos($Think.session.sign,'3') nheq false"}<a href="/admin/edit/{$admin.id}"><button class="layui-btn layui-btn-normal  layui-btn-small"><i class="layui-icon">&#xe642;</i> 编辑</button></a>{/if}
+			    {if condition="strpos($Think.session.sign,'2') nheq false"}<a href="javascript:;"><button data-id="{$admin.id}" class="layui-btn layui-btn-danger layui-btn-small delBtn"><i class="layui-icon">&#xe640;</i> 删除</button></a>{/if}
+		  	</div>
+        </td>
+      </tr>
+      {/volist}
+     </tbody>
+</table>
+{$list->render()}
+</div>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script>
+layui.use(['form','layer'], function(){
+  var $ = layui.jquery, form = layui.form(),layer = layui.layer,laypage = layui.laypage;
+  
+
+  
+
+  //全选
+  form.on('checkbox(allChoose)', function(data){
+    var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+    child.each(function(index, item){
+      item.checked = data.elem.checked;
+    });
+    if(data.elem.checked){
+      delAll.className = 'layui-btn layui-btn-danger';
+    }else{
+      delAll.className = 'layui-btn layui-btn-disabled';
+    }
+    form.render('checkbox');
+  });
+
+  form.on('checkbox(checkOn)',function(data){
+  	var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+  	var length = child.length;
+  	var checkedCount = 0;
+  	child.each(function(index, item){
+  		if(item.checked){
+			checkedCount++;
+  		}
+    });
+  	if(checkedCount == length){
+  		$(data.elem).parents('table').find('thead input[type="checkbox"]')[0].checked = data.elem.checked;
+  	}else{
+      $(data.elem).parents('table').find('thead input[type="checkbox"]')[0].checked = false;
+    }
+    if(checkedCount >= 2){
+  		delAll.className = 'layui-btn layui-btn-danger';
+  	}
+  	else{
+      delAll.className = 'layui-btn layui-btn-disabled';
+  	}
+    form.render('checkbox');
+  });
+
+  $('#delAll').on('click',function(){
+  	var child = $('table').find('tbody input[type="checkbox"]');
+  	var id = [];
+  	child.each(function(index, item){
+  		if(item.checked){
+			id.push(item.value);
+  		}
+    });
+    $.post('/admin/del_all',{'ids':id.join(',')},function(data){
+        if(data.success){
+          layer.alert(data.msg,{
+            icon:1
+          },function(){
+            window.location.reload();
+          })
+        }else{
+          layer.alert(data.msg,{
+            icon:2
+          })
+        }
+    });
+    
+  });
+
+  $('.delBtn').on('click',function(){
+    var id = $(this).attr('data-id');
+    $.getJSON('/admin/del',{'id':id},function(data){
+      if(data.success){
+        layer.alert(data.msg,{
+          icon:1
+        },function(){
+          window.location.reload();
+        })
+      }else{
+        layer.alert(data.msg,{
+          icon:2
+        })
+      }
+    })
+  })
+
+  
+  
+});
+</script>

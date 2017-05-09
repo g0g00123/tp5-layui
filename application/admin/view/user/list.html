@@ -1,0 +1,112 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend>用户列表</legend>
+</fieldset>
+
+<div class="layui-btn-group bounceInUp animated">
+    <a href="{:url('/admin/user/add')}"><button class="layui-btn">新增</button></a>
+ </div>
+
+<div class="layui-form bounceInUp animated">
+<table class="layui-table" lay-even lay-skin="nob">
+   <colgroup>
+      <col width="50">
+      <col width="150">
+      <col width="150">
+      <col width="150">
+      <col width="150">
+      <col width="200">
+      <col width="200">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th>序号</th>
+        <th>用户名</th>
+        <th>昵称</th>
+        <th>性别</th>
+        <th>头像</th>
+        <th>电话号码</th>
+        <th>所在城市</th>
+        <th>操作</th>
+      </tr> 
+    </thead>
+    <tbody>
+	{volist name='list' id='user' key="index"}
+      <tr>
+        <td>{$key}</td>
+        <td>{$user.username}</td>
+        <td>{$user.nickname}</td>
+        <td>{$user.sex == "1" ? "男" : "女"}</td>
+        <td><a href="javascript:;" class="preview" data-index="{$index}">{$user.avatar}</a></td>
+        <td>{$user.mobile}</td>
+        <td>{$user.city}</td>
+        <td>
+	        <div class="layui-btn-group">
+			    <a href="javascript:;"><button class="detailBtn layui-btn layui-btn-normal  layui-btn-small"><i class="layui-icon">&#xe642;</i> 详情</button></a>
+          {if condition="strpos($Think.session.sign,'4') nheq false"}<button  data-id="{$user.id}" class="delBtn layui-btn layui-btn-danger   layui-btn-small"><i class="layui-icon">&#xe642;</i> 删除</button>{/if}
+		  	</div>
+        </td>
+      </tr>
+      {/volist}
+     </tbody>
+</table>
+{$list->render()}
+
+</div>
+
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script>
+layui.use(['form','layer'], function(){
+  var $ = layui.jquery,layer = layui.layer;
+
+
+
+  // var list = "{$list}";
+  // var data = [];
+  // for (var i = 0; i < list.length; i++) {
+  //   var json = {};
+  //   json.alt = list[i].username;
+  //   json.src = "__UPLOADS__/" + list[i].avatar;
+  //   data.push(json);
+  // }
+  // $('.preview').on('click',function(){
+  //     var index = $(this).data('index');
+  //     var json = {
+  //       "title": "头像", //相册标题
+  //       "data": [{
+  //         src:'__UPLOAD_PATH__/'+$(this).text()
+  //       }
+  //       ]
+  //     };
+  //     layer.photos({
+  //       photos: json
+  //       ,anim: 0 
+  //     });
+  // });
+
+  $('.delBtn').on('click',function(){
+    var id = $(this).data('id');
+    $.post('/admin/user/del',{id:id},function(data){
+        if(data.success){
+          layer.alert(data.msg,{
+            icon:1
+          },function(){
+            window.location.reload();
+          })
+        }else{
+          layer.alert(data.msg,{
+            icon:2
+          })
+        }
+    })
+  })
+  
+  $('.detailBtn').on('click',function(){
+    layer.alert('正在开发中，敬请期待！',{
+            icon:3
+          })
+  })
+
+});
+</script>

@@ -1,0 +1,53 @@
+{__NOLAYOUT__}<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{$Think.config.object_name}后台管理系统</title>
+	<meta name="renderer" content="webkit">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+	  <meta name="apple-mobile-web-app-capable" content="yes">
+	  <meta name="format-detection" content="telephone=no">
+	  <link rel="stylesheet" href="__LAYUI__/css/layui.css" media="all">
+	  <link rel="stylesheet" href="__PUBLIC__/css/animate.min.css" media="all">
+	  <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/common.css">
+	  <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/admin.css">
+</head>
+<body>
+	<div class="container fadeInDown animated">
+		<h1>后台登录</h1>
+		<form class="layui-form" method="post" action="{:url('/admin/login')}" id="form">
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">用户名</label>
+		      <input type="text" required name="username" lay-verify="username" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">密码</label>
+		      <input type="password" required name="password" lay-verify="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
+		  </div>
+		  <div class="layui-form-item">
+		    <label class="layui-form-label">验证码</label>
+		    <div class="code-group">
+		      <input type="password"  name="code" lay-verify="required" placeholder="请输入验证码" autocomplete="off" class="layui-input">
+		      <img src="/checkVerify" onclick="javascript:this.src='/checkVerify?tm='+Math.random();"/>
+		    </div>
+		  </div>
+		  
+		  <div class="layui-form-item text-align">
+			    <button  class="layui-btn" lay-submit id="submitBtn">登录</button>
+			</div>
+		  </form>
+	  </div>
+	  <div class="filter-container"></div>
+
+	
+	<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/admin.js"></script>
+	<!-- <script type="text/javascript">
+		layui.config({
+		  base: '__LAYUI__/lay/modules/' //你的模块目录
+		}).use('index'); //加载入口
+	</script> -->
+</body>
+</html>

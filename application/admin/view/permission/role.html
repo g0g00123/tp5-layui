@@ -1,0 +1,281 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend>角色列表</legend>
+</fieldset>
+
+<div class="layui-btn-group fadeInDown animated">
+    <button id="addRole" class="layui-btn">新增</button>
+    <button id="editRole" class="layui-btn layui-btn-disabled" >编辑</button>
+    <button id="delAll" class="layui-btn  layui-btn-disabled">删除</button>
+ </div>
+
+<div class="layui-form fadeInUp animated">
+<table class="layui-table" lay-even lay-skin="nob">
+   <colgroup>
+      <col width="100">
+      <col width="150">
+      <col width="200">
+      <col width="200">
+      <col>
+    </colgroup>
+    <thead>
+      <tr>
+        <th><input type="checkbox" name="" lay-skin="primary" lay-filter="allChoose"></th>
+        <th>角色名</th>
+        <th>描述</th>
+        <th>菜单操作</th>
+      </tr> 
+    </thead>
+    <tbody>
+	{volist name='list' id='role'}
+      <tr>
+        <td><input value="{$role.id}" type="checkbox" lay-filter="checkOn" lay- lay-skin="primary"></td>
+        <td>{$role.name}</td>
+        <td>{$role.desc}</td>
+        <td> 
+	       <i class="layui-icon setting" data-id="{$role.id}" class="layui-icon" style="font-size:30px;cursor: pointer;">&#xe620;</i>  
+        </td>
+      </tr>
+      {/volist}
+     </tbody>
+</table>
+{$list->render()}
+
+</div>
+
+<div id="addRoleLayer" style="padding: 20px;display: none">
+	<form id="form" class="layui-form">
+		<div class="layui-form-item">
+	    <label class="layui-form-label">角色名</label>
+	     <div class="layui-input-block">
+	      <input type="text"  name="name" lay-verify="required" autocomplete="off" placeholder="请输入用户名" class="layui-input">
+	      </div>
+	  </div>
+	  <input type="hidden" name="id">
+	  <div class="layui-form-item">
+	    <label class="layui-form-label">描述</label>
+	    <div class="layui-input-block">
+	      <input type="text"  name="desc" lay-verify="required" placeholder="请输入描述" autocomplete="off" class="layui-input">
+	      </div>
+	  </div>
+	  <div class="layui-form-item">
+	  	<div class="layui-input-block">
+		    <button type="button" class="layui-btn formAddBtn" lay-submit lay-filter="formSubmit">添加</button>
+		    <button type="button" class="layui-btn formEditBtn" lay-submit lay-filter="editSubmit">保存</button>
+		 </div>
+	   </div>
+	</form>
+</div>
+
+<div id="addMenuLayer" style="padding: 20px 137px;display: none">
+	<form id="menuForm" class="layui-form">
+		<div class="layui-form-item">
+		      <input type="checkbox" lay-skin="primary" name="" value="1" title="添加管理员"><br>
+		      <input type="checkbox" lay-skin="primary" name="" value="2" title="删除管理员"><br>
+		      <input type="checkbox" lay-skin="primary" name="" value="3" title="编辑管理员"><br>
+		      <input type="checkbox" lay-skin="primary" name="" value="4" title="删除用户"><br>
+		      <input type="checkbox" lay-skin="primary" name="" value="5" title="发表文章">
+	    </div>
+	    <input type="hidden" name="id">
+	    <input type="hidden" name="sign">
+		<div class="layui-form-item">
+			  <button type="button" class="layui-btn" lay-submit lay-filter="menuSubmit">保存</button>
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script>
+layui.use(['form','layer'], function(){
+  var $ = layui.jquery, form = layui.form(),layer = layui.layer;
+  
+
+  form.on('submit(formSubmit)', function(data){
+      $.post("{:url('/role/add')}",$('#form').serialize(),function(data){
+          if(data.success){
+            layer.alert(data.msg,{
+              icon:1
+            },function(){    
+                window.location.reload();          
+            })
+          }else{
+            layer.alert(data.msg,{
+              icon:2
+            });
+          }
+      })
+    	
+  });
+
+  form.on('submit(editSubmit)', function(data){
+      $.post("{:url('/role/edit')}",$('#form').serialize(),function(data){
+          if(data.success){
+            layer.alert(data.msg,{
+              icon:1
+            },function(){    
+                window.location.reload();          
+            })
+          }else{
+            layer.alert(data.msg,{
+              icon:2
+            });
+          }
+      })
+    	
+  });
+
+   form.on('submit(menuSubmit)', function(data){
+   	  var input = $('#menuForm').find('input');
+   	  var signs = [];
+   	  input.each(function(index, item){
+   	  	if(item.checked){
+			signs.push(item.value);
+   	  	}
+	   });
+   	  $('#menuForm input[name="sign"]').val(signs.join(','));
+      $.post("{:url('/role/edit')}",$('#menuForm').serialize(),function(data){
+          if(data.success){
+            layer.alert(data.msg,{
+              icon:1
+            },function(){    
+                window.location.reload();          
+            })
+          }else{
+            layer.alert(data.msg,{
+              icon:2
+            });
+          }
+      })
+    	
+  });
+
+  //全选
+  form.on('checkbox(allChoose)', function(data){
+    var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+    child.each(function(index, item){
+      item.checked = data.elem.checked;
+    });
+    if(data.elem.checked){
+      delAll.className = 'layui-btn layui-btn-danger';
+    }else{
+      delAll.className = 'layui-btn layui-btn-disabled';
+    }
+    form.render('checkbox');
+  });
+
+  form.on('checkbox(checkOn)',function(data){
+  	var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+  	var length = child.length;
+  	var checkedCount = 0;
+  	child.each(function(index, item){
+  		if(item.checked){
+			checkedCount++;
+  		}
+    });
+  	if(checkedCount == length){
+  		$(data.elem).parents('table').find('thead input[type="checkbox"]')[0].checked = data.elem.checked;
+  	}else {
+  		$(data.elem).parents('table').find('thead input[type="checkbox"]')[0].checked = false;
+  	}
+  	if(checkedCount == 1){
+  		editRole.className = 'layui-btn layui-btn-normal';
+  	}else{
+  		editRole.className = 'layui-btn layui-btn-disabled';
+  	}
+  	if(checkedCount >= 1){
+  		delAll.className = 'layui-btn layui-btn-danger';
+  	}else{
+  		
+      delAll.className = 'layui-btn layui-btn-disabled';
+  	}
+    form.render('checkbox');
+  });
+
+
+  $('#delAll').on('click',function(){
+  	var child = $('table').find('tbody input[type="checkbox"]');
+  	var id = [];
+  	child.each(function(index, item){
+  		if(item.checked){
+			id.push(item.value);
+  		}
+    });
+    $.post('/role/del',{'ids':id.join(',')},function(data){
+        if(data.success){
+          layer.alert(data.msg,{
+            icon:1
+          },function(){
+            window.location.reload();
+          })
+        }else{
+          layer.alert(data.msg,{
+            icon:2
+          })
+        }
+    });
+    
+  });
+
+  
+  $('#addRole').on('click',function(){
+  	$('.formEditBtn').hide();
+  	$('.formAddBtn').show();
+  	layer.open({
+  		type: 1, 
+  		title:'添加角色',
+  		content:$('#addRoleLayer'),
+  		area: ['400px', 'auto']
+  	})
+  });
+
+  $('#editRole').on('click',function(){
+  	$('.formEditBtn').show();
+  	$('.formAddBtn').hide();
+  	var child = $('table').find('tbody input[type="checkbox"]');
+  	var id = "";
+  	child.each(function(index, item){
+  		if(item.checked){
+			id = item.value;
+  		}
+    });
+  	$.getJSON('/role/get/'+id,function(data){
+  		$('input[name="name"]').val(data.name);
+  		$('input[name="desc"]').val(data.desc);
+  		$('#form input[name="id"]').val(data.id);
+  		layer.open({
+	  		type: 1, 
+	  		title:'编辑角色',
+	  		content:$('#addRoleLayer'),
+	  		area: ['400px', 'auto']
+	  	})
+  	})
+  })
+
+  $('.setting').on('click',function(){
+  		var id = $(this).data('id');
+  		$('#menuForm input[name="id"]').val(id);
+  		$.getJSON('/role/get/'+id,function(data){
+  			var sign = data.sign;
+  			if(sign != null){
+	  			$('#menuForm input[type="checkbox"]').each(function(index,item){
+	  				if(sign.indexOf(item.value) > -1){
+	  					item.checked = true;
+	  					$(item).next().addClass('layui-form-checked');
+	  				}else{
+	  					item.checked = false;
+	  					$(item).next().removeClass('layui-form-checked');
+	  				}
+	  			});
+  			}
+	  		layer.open({
+		  		type: 1, 
+		  		title:'编辑操作权限',
+		  		content:$('#addMenuLayer'),
+		  		area: ['400px', 'auto']
+			})
+	  	})
+  		
+  })
+  
+  
+});
+</script>

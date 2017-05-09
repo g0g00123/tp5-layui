@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{$Think.config.object_name}后台管理系统</title>
+	<meta name="renderer" content="webkit">
+	  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	  <meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+	  <meta name="apple-mobile-web-app-capable" content="yes">
+	  <meta name="format-detection" content="telephone=no">
+	  <link rel="stylesheet" href="__LAYUI__/css/layui.css" media="all">
+    <link rel="stylesheet" href="__PUBLIC__/css/animate.min.css" media="all">
+	  <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/common.css">
+	  <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/global.css">
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+  <div class="layui-header header header-demo">
+  <div class="layui-main">
+   <!--  <a class="logo" href="/">
+     <img src="//res.layui.com/images/layui/logo.png" alt="layui">
+   </a> -->
+    <ul class="layui-nav" pc="">
+      <li class="layui-nav-item" pc="">
+        <a href="javascript:;" style="padding: 0 20px 0 10px;"><img style="width:30px;margin-right: 10px" src="__UPLOADS__/{$Think.session.avatar}">{$Think.session.username}<span class="layui-nav-more"></span></a>
+        <dl class="layui-nav-child">
+          <dd><a href="/admin/edit/{$Think.session.id}">编辑信息</a></dd>
+          <dd><a href="/admin/update_password/{$Think.session.id}">修改密码</a></dd>
+          <dd><a href="/admin/loginout">退出系统</a></dd>
+        </dl>
+      </li>
+      <li class="layui-nav-item" mobile="">
+        <a href="javascript:;">更多<span class="layui-nav-more"></span></a>
+        <dl class="layui-nav-child">
+          <dd><a href="/admin/info" target="_blank">个人信息</a></dd>
+          <dd><a href="/admin/loginout" target="_blank">退出系统</a></dd>
+        </dl>
+      </li>
+      </ul>
+  </div>
+</div>

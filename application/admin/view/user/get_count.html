@@ -1,0 +1,195 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend><!-- {:date('Y',time())} 年-->柱状图表</legend>
+</fieldset>
+<div id="year-chart" class="bounceInLeft animated" style="height: 500px"></div>
+
+<script type="text/javascript" src="__STATIC__/js/echarts/dist/echarts-all.js"></script>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script>
+        var myChart = echarts.init(document.getElementById('year-chart'),'macarons'); 
+        myChart.showLoading({
+		    text: '正在努力的读取数据中...',    
+		});
+		var dataMap = {};
+		var dataName = ['User','Admin','Post'];
+        var monthZ = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+        var monthD = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        $.getJSON('/admin/user/get_count_action',function(data){
+        	var user = data.user;
+        	var year = data.year;
+        	var admin = data.admin;
+        	var post = data.post;
+        	var obj = [];
+        	obj.push(user);
+			obj.push(admin);
+			obj.push(post);
+        	for(var k=0; k < obj.length; k++){
+        		var objArr = {};
+    			for (var i = 0; i < obj[k].length; i++) {
+	        		if(!(obj[k][i].year in objArr)){
+	        			objArr[obj[k][i].year] = new Array();
+	        		}
+	    			for(var j = 0; j < monthD.length; j++){
+	    				if(obj[k][i].month == monthD[j]){
+	    					var json = {
+	    						name:monthZ[j],
+	    						value:obj[k][i].count
+	    					};
+	    					objArr[obj[k][i].year].push(json);
+	    				}
+	    			}
+	    			objArr[obj[k][i].year] = concatArr(objArr[obj[k][i].year]);
+
+		        };
+
+	        	dataMap["data"+dataName[k]] = objArr;
+        	}
+
+        	 function concatArr(dataArr){
+        	 	var emptyArr = [];
+			        for(var z = 0 ; z < 12; z++){
+			        	var emptyJson = {
+			        		name:monthZ[z],
+			        		value: 0
+			        	}
+			        	emptyArr.push(emptyJson);
+			    }  
+	        	for (var x = 0; x < emptyArr.length; x++) {
+        			for (var y = 0; y < dataArr.length; y++) {
+        				if(dataArr[y].name == emptyArr[x].name){
+        					emptyArr[x].value = dataArr[y].value;
+        				}
+        			}
+	        	}
+	        	return emptyArr;
+	        }
+
+
+        	var option = {
+			    timeline:{
+			        data:year,
+			        label : {
+			            formatter : function(s) {
+			                return s+"年";
+			            }
+			        },
+			        autoPlay : false,
+			        playInterval : 1000
+			    },
+			    options:[
+			        {
+			            title : {
+			                'text':year[0]+'系统数据统计柱状图',
+			                'subtext':'该数据为数据库真实数据'
+			            },
+			            tooltip : {
+			            	'trigger':'axis',
+			            },
+			            legend : {
+			                x:'right',
+			                'data':['用户','管理员','发表文章'],
+			                'selected':{
+			                	'用户':true,
+			                	'管理员':true,
+			                    '发表文章':false,
+			                }
+			            },
+			            toolbox : {
+			                'show':true, 
+			                orient : 'vertical',
+			                x: 'right', 
+			                y: 'center',
+			                'feature':{
+			                    'mark':{'show':true},
+			                    'dataView':{'show':true,'readOnly':false},
+			                    'magicType':{'show':true,'type':['line','bar','stack','tiled']},
+			                    'restore':{'show':true},
+			                    'saveAsImage':{'show':true}
+			                }
+			            },
+			            calculable : true,
+			            grid : {'y':80,'y2':100},
+			            xAxis : [{
+			                'type':'category',
+			                'axisLabel':{'interval':0},
+			                'data' : monthZ
+			            }],
+			            yAxis : [
+			                {
+			                    'type':'value',
+			                    'name':'管理员/用户（人）',
+			                },
+			                {
+			                    'type':'value',
+			                    'name':'发表文章（篇）'
+			                }
+			            ],
+			            series : [
+			                {
+			                    'name':'用户',
+			                    'type':'bar',
+			                    'markLine':{
+			                        symbol : ['arrow','none'],
+			                        symbolSize : [4, 2],
+			                        itemStyle : {
+			                            normal: {
+			                                lineStyle: {color:'orange'},
+			                                barBorderColor:'orange',
+			                                label:{
+			                                    position:'left',
+			                                    formatter:function(params){
+			                                        return Math.round(params.value);
+			                                    },
+			                                    textStyle:{color:'orange'}
+			                                }
+			                            }
+			                        },
+			                        'data':[{'type':'average','name':'平均值'}]
+			                    },
+			                    'data': dataMap.dataUser[year[0]]
+			                },
+			                {
+			                    'name':'管理员','yAxisIndex':1,'type':'bar',
+			                    'data': dataMap.dataAdmin[year[0]]
+			                },
+			                {
+			                    'name':'发表文章','yAxisIndex':1,'type':'bar',
+			                    'data': dataMap.dataPost[year[0]]
+			                }
+			            ]
+			        }]
+			    };
+
+			
+	        for(var f = 1; f < year.length; f++){  
+	        	var optionsData = {};
+	        	optionsData.title = {'text':year[f]+'系统数据统计柱状图'}
+	        	optionsData.series = new Array();
+	        	for(var g in dataMap){
+	        		var seriesData = {};
+	        		seriesData['data'] = dataMap[g][year[f]];
+	        		optionsData.series.push(seriesData);
+	        	}
+	        	option.options.push(optionsData);
+	        	
+	        }
+	        console.info(option);
+	        // 为echarts对象加载数据 
+            myChart.setOption(option); 
+
+	        myChart.hideLoading();	
+        	
+        })
+		
+		 window.onresize = myChart.resize;
+		
+
+		
+		
+                    
+       
+        
+         
+
+</script>

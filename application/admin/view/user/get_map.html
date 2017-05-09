@@ -1,0 +1,142 @@
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+  <legend>{:date('Y',time())}年地图饼图图表</legend>
+</fieldset>
+<div id="main" class="bounceInDown animated" style="height: 500px"></div>
+
+<script type="text/javascript" src="__STATIC__/js/echarts/dist/echarts-all.js"></script>
+<script type="text/javascript" src="__LAYUI__/layui.js"></script>
+<script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script>
+        var myChart = echarts.init(document.getElementById('main'),'macarons'); 
+        myChart.showLoading({
+		    text: '正在努力的读取数据中...',    
+		});
+		 var proArrList = ['上海', '河北', '山西', '内蒙古', '辽宁', '吉林','黑龙江',  '江苏', '浙江', '安徽', '福建', '江西', '山东','河南', '湖北', '湖南', '广东', '广西', '海南', '四川', '贵州', '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆', '北京', '天津', '重庆', '香港', '澳门','台湾'];
+        $.getJSON('/admin/user/get_map_action',function(data){
+        	var proData = [],proDataArr = [],proName = [];
+        	for(var i = 0; i < data.length; i++){
+				proDataArr[i] = {
+        			name : data[i].province,
+        			value : data[i].count,
+        		}
+        		if(i < 3){
+					proData.push(data[i].province);
+					proDataArr[i].selected = true;
+        		}
+        		var index = proArrList.indexOf(data[i].province);
+        		if( index > -1){
+        			proArrList.splice(index,1);
+        		}
+        	}
+        	for (var j = 0; j < proArrList.length; j++) {
+        		proDataArr.push({
+        			name:proArrList[j],
+        			value:0
+        		})
+        	}
+
+        
+        	var option = {
+			    title : {
+			        text: {:date('Y',time())}+'年用户数量统计图',
+			        subtext: '该数据为数据库真实数据'
+			    },
+			    tooltip : {
+			        trigger: 'item'
+			    },
+			    legend: {
+			        x:'right',
+			        selectedMode:false,
+			        data:proData
+			    },
+			    dataRange: {
+			        orient: 'horizontal',
+			        min: 0,
+			        max: 1000,
+			        text:['多','少'],           // 文本，默认为数值文本
+			        splitNumber:0
+			    },
+			    toolbox: {
+			        show : true,
+			        orient: 'vertical',
+			        x:'right',
+			        y:'center',
+			        feature : {
+			            mark : {show: true},
+			            dataView : {show: true, readOnly: false}
+			        }
+			    },
+			    series : [
+			        {
+			            name: {:date('Y',time())}+'年用户分布图',
+			            type: 'map',
+			            mapType: 'china',
+			            mapLocation: {
+			                x: 'left'
+			            },
+			            tooltip: {
+			                trigger: 'item',
+			                formatter: "{a} <br/>{b} : {c}人"
+			            },
+			            selectedMode : 'multiple',
+			            itemStyle:{
+			                normal:{label:{show:true}},
+			                emphasis:{label:{show:true}}
+			            },
+			            data:proDataArr
+			        },
+			        {
+			            name:{:date('Y',time())}+'年用户分布对比图',
+			            type:'pie',
+			            roseType : 'area',
+			            tooltip: {
+			                trigger: 'item',
+			                formatter: "{a} <br/>{b} : {c}人 ({d}%)"
+			            },
+			            center: [document.getElementById('main').offsetWidth - 250, 225],
+			            radius: [30, 120],
+			            data:proDataArr.slice(0,3)
+			        }
+			    ],
+			    animation: true
+			};
+			myChart.on(echarts.config.EVENT.MAP_SELECTED, function (param){
+			    var selected = param.selected;
+			    var mapSeries = option.series[0];
+			    var data = [];
+			    var legendData = [];
+			    var name;
+			    for (var p = 0, len = mapSeries.data.length; p < len; p++) {
+			        name = mapSeries.data[p].name;
+			        //mapSeries.data[p].selected = selected[name];
+			        if (selected[name]) {
+			            data.push({
+			                name: name,
+			                value: mapSeries.data[p].value
+			            });
+			            legendData.push(name);
+			        }
+			    }
+			    option.legend.data = legendData;
+			    option.series[1].data = data;
+			    myChart.setOption(option, true);
+			})
+                    
+			myChart.setOption(option, true);
+	        myChart.hideLoading();	
+
+        	
+        	
+        })
+		
+		 window.onresize = myChart.resize;
+		
+
+		
+		
+                    
+       
+        
+         
+
+</script>
