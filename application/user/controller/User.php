@@ -81,18 +81,19 @@ class User extends Base
 		$userModel = new UserModel;
 		$data = input('post.');
 		$user = $userModel->where('id',$data['id'])->find();
-      if(isset($data['avatar']) &&　($data['avatar'] != $user['avatar'])){
-         unlink($this->data['upload_path'].'/'.$user['avatar']);
-         
-       }
-    	$result = $userModel->save($data,['id' => $data['id']]);
-		
-		if($result){
-			return json(['success' => 'true','msg' => '修改成功！']);
-		}
-		else{
-			return json(['success' => 'fasle','msg' => '修改失败！']);
-		}
+        if(isset($data['avatar'])  && (!empty($user['avatar'])) && ($data['avatar'] != $user['avatar'])){
+
+          unlink($this->data['upload_path'].'/'.$user['avatar']);
+
+        }
+         $result = $userModel->save($data,['id' => $data['id']]);
+
+         if($result){
+             return json(['success' => 'true','msg' => '修改成功！']);
+         }
+         else{
+             return json(['success' => 'fasle','msg' => '修改失败！']);
+         }
 	}
 
 	public function updatePass()
